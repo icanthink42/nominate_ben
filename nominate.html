@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nominate Ben</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .counter {
+            font-size: 1.8em;
+            color: white;
+            font-weight: 600;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .nominate-btn {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            border: none;
+            color: white;
+            font-size: 2em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transition: transform 0.1s ease;
+        }
+
+        .nominate-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes bounce {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nominate-btn.animating {
+            animation: bounce 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="counter" id="counter">You have nominated ben 0 times!</div>
+
+    <button class="nominate-btn" id="nominateBtn" onclick="submitNomination()">
+        nominate<br>ben
+    </button>
+
+    <script>
+        // Cookie functions
+        function setCookie(name, value, days) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + d.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        // Initialize counter from cookie
+        let nominationCount = parseInt(getCookie('benNominations') || '0');
+        updateCounter();
+
+        function updateCounter() {
+            document.getElementById('counter').textContent = `You have nominated ben ${nominationCount} times!`;
+        }
+
+        async function submitNomination() {
+            const btn = document.getElementById('nominateBtn');
+
+            // Add animation
+            btn.classList.add('animating');
+            setTimeout(() => btn.classList.remove('animating'), 300);
+
+            // Form data
+            const formData = new URLSearchParams();
+            formData.append('entry.2036174232', 'Ben Chaput');
+            formData.append('entry.848296261', 'benchaput');
+            formData.append('entry.1690130880', 'President (2 elected)');
+            formData.append('entry.1690130880', 'Secretary (1 elected)');
+            formData.append('entry.1690130880', 'Treasurer (1 elected)');
+            formData.append('entry.1690130880', 'Safety Director (1 elected)');
+            formData.append('entry.1690130880', 'Laboratory Director (1 elected)');
+            formData.append('entry.1690130880', 'Outreach Director (1 elected)');
+            formData.append('fvv', '1');
+            formData.append('partialResponse', '[null,null,"3955252566022862643"]');
+            formData.append('pageHistory', '0');
+            formData.append('fbzx', '3955252566022862643');
+
+            const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSdeJN-orKS636L-0N5_B0qx0YQCOyItaURC1WErDpLxzAJJTA/formResponse';
+
+            try {
+                // Submit using fetch with no-cors mode
+                await fetch(formUrl, {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'no-cors'
+                });
+
+                // Increment counter
+                nominationCount++;
+                setCookie('benNominations', nominationCount, 365);
+                updateCounter();
+
+            } catch (error) {
+                console.error('Error:', error);
+                // Still increment counter since we tried
+                nominationCount++;
+                setCookie('benNominations', nominationCount, 365);
+                updateCounter();
+            }
+        }
+    </script>
+</body>
+</html>
+
